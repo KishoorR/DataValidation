@@ -23,27 +23,32 @@ keys_list = df.keys().values.tolist()
 df_non_matching = pd.merge(df1,df,on=keys_list,how='outer',indicator=True,sort=True)
 #print(df_non_matching)
 
-index_list =df_non_matching.index.values.tolist()
-#print(index_list)
-#df_non_matching['Index'] = index_list
+
 df_non_matching = df_non_matching[(df_non_matching._merge != 'both')]
 #print(df_non_matching)
 index_list =df_non_matching.index.values.tolist()
 df_right = df_non_matching[(df_non_matching._merge == 'right_only')]
 df_left = df_non_matching[(df_non_matching._merge == 'left_only')]
 
-#index_keys_list = keys_list
-#index_keys_list.append("Index")
+
 df_right.reset_index(inplace = True, drop = True)
 df_left.reset_index(inplace = True, drop = True)
-#df_final_nonmatch = pd.merge(df_left[keys_list],df_right[keys_list],on="Index",how = "right",suffixes=("_hdl","_data_val_report"))
-print(df_left)
+index_list =df_right.index.values.tolist()
+#print(index_list)
+df_right['Index'] = index_list
+df_left['Index'] = index_list
+keys_list.append("Index")
+df_final_nonmatch = pd.merge(df_left[keys_list],df_right[keys_list],on="Index",how = "right",suffixes=("_hdl","_data_val_report"))
 
-df_final_nonmatch=df_left.compare(df_right,keep_shape= True,keep_equal = True,align_axis=1).rename(columns={'self': 'HDL', 'other': 'Data_Val'}, level=-1)
 
-print(df_final_nonmatch[keys_list])
-
-df_final_nonmatch=df_final_nonmatch[keys_list]
+#df_final_nonmatch=df_left.compare(df_right,keep_shape= True,keep_equal = True,align_axis=1,result_names=('HDL', 'Data_Val'))
+keys_list_final = df_final_nonmatch.keys().values.tolist()
+First_col = keys_list_final[0]
+keys_list_final = keys_list_final[1:len(keys_list_final)]
+keys_list_final.sort()
+keys_list_final.insert(0,First_col)
+print(df_final_nonmatch)
+df_final_nonmatch=df_final_nonmatch.loc[:,keys_list_final]
 
 #print(df_final_nonmatch)
 file_name = 'output.xlsx'
